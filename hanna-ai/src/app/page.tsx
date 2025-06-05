@@ -64,7 +64,7 @@ export default function Home() {
             color="text.primary" 
             sx={{ mb: 2 }}
           >
-            🤖 HannaAI
+            HannaAI
           </Typography>
           <Typography variant="h6" color="text.secondary">
             Your AI-powered assistant, ready to help with anything
@@ -93,7 +93,7 @@ export default function Home() {
                   fontSize: '1.1rem'
                 }}
               >
-                🚀 Continue with Google
+                Continue with Google
               </Button>
             </Box>
           }

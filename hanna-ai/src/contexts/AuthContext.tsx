@@ -12,16 +12,29 @@ import {
   sendPasswordResetEmail,
   updateProfile
 } from 'firebase/auth';
-import { auth } from '../firebase';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase';
+
+interface UserProfile {
+  uid: string;
+  email: string;
+  displayName: string;
+  chatbaseAgentId?: string;
+  googleDriveFolderId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 interface AuthContextType {
   user: User | null;
+  userProfile: UserProfile | null;
   loading: boolean;
   signUp: (email: string, password: string, displayName?: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,16 +49,51 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
+      
+      if (user) {
+        // Fetch or create user profile
+        await loadUserProfile(user);
+      } else {
+        setUserProfile(null);
+      }
+      
       setLoading(false);
     });
 
     return unsubscribe;
   }, []);
+
+  const loadUserProfile = async (user: User) => {
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (userDoc.exists()) {
+        const profileData = userDoc.data() as UserProfile;
+        setUserProfile(profileData);
+      } else {
+        // Create new user profile
+        const newProfile: UserProfile = {
+          uid: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        
+        await setDoc(userDocRef, newProfile);
+        setUserProfile(newProfile);
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    }
+  };
 
   const signUp = async (email: string, password: string, displayName?: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -61,6 +109,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    // Request additional scopes for Google Drive access
+    provider.addScope('https://www.googleapis.com/auth/drive.readonly');
+    provider.addScope('https://www.googleapis.com/auth/drive.metadata.readonly');
+    
     await signInWithPopup(auth, provider);
   };
 
@@ -72,14 +124,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await sendPasswordResetEmail(auth, email);
   };
 
+  const updateUserProfile = async (updates: Partial<UserProfile>) => {
+    if (!user || !userProfile) return;
+    
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      const updatedProfile = {
+        ...userProfile,
+        ...updates,
+        updatedAt: new Date(),
+      };
+      
+      await updateDoc(userDocRef, updatedProfile);
+      setUserProfile(updatedProfile);
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+  };
+
   const value: AuthContextType = {
     user,
+    userProfile,
     loading,
     signUp,
     signIn,
     signInWithGoogle,
     logout,
     resetPassword,
+    updateUserProfile,
   };
 
   return (
