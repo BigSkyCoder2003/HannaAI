@@ -1,25 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuth } from "firebase-admin/auth";
-import { getFirestore } from "firebase-admin/firestore";
-import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { getAdminAuth, getAdminDb, isFirebaseInitialized } from "../../../lib/firebase-admin";
 import { syncService } from "../../../lib/syncService";
-
-// Initialize Firebase Admin if not already initialized
-if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
-}
-
-const auth = getAuth();
-const db = getFirestore();
 
 export async function POST(req: NextRequest) {
   try {
+    // Check if Firebase is properly initialized
+    if (!isFirebaseInitialized()) {
+      return NextResponse.json({ 
+        error: "Server configuration error. Firebase is not properly initialized." 
+      }, { status: 500 });
+    }
+
+    const auth = getAdminAuth();
+    const db = getAdminDb();
+
+    if (!auth || !db) {
+      return NextResponse.json({ 
+        error: "Server configuration error. Firebase services are not available." 
+      }, { status: 500 });
+    }
+
     const { action, chatbaseAgentId, googleDriveFolderId } = await req.json();
 
     // Get the authorization header
@@ -88,6 +88,22 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
+    // Check if Firebase is properly initialized
+    if (!isFirebaseInitialized()) {
+      return NextResponse.json({ 
+        error: "Server configuration error. Firebase is not properly initialized." 
+      }, { status: 500 });
+    }
+
+    const auth = getAdminAuth();
+    const db = getAdminDb();
+
+    if (!auth || !db) {
+      return NextResponse.json({ 
+        error: "Server configuration error. Firebase services are not available." 
+      }, { status: 500 });
+    }
+
     // Get the authorization header
     const authHeader = req.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

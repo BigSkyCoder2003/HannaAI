@@ -1,6 +1,5 @@
 import { google } from 'googleapis';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getAdminDb } from './firebase-admin';
 
 interface GoogleDriveFile {
   id: string;
@@ -13,11 +12,17 @@ interface GoogleDriveFile {
 export class GoogleDriveService {
   private auth: any;
   private drive: any;
-  private db: FirebaseFirestore.Firestore;
 
   constructor() {
-    this.db = getFirestore();
     this.initializeAuth();
+  }
+
+  private getDb() {
+    const db = getAdminDb();
+    if (!db) {
+      throw new Error('Firebase Firestore not available');
+    }
+    return db;
   }
 
   private initializeAuth() {
@@ -39,14 +44,16 @@ export class GoogleDriveService {
     });
 
     // Store refresh token in Firestore (encrypted in production)
-    await this.db.collection('userCredentials').doc(userId).set({
+    const db = this.getDb();
+    await db.collection('userCredentials').doc(userId).set({
       googleRefreshToken: refreshToken,
       updatedAt: new Date(),
     });
   }
 
   async getUserCredentials(userId: string) {
-    const doc = await this.db.collection('userCredentials').doc(userId).get();
+    const db = this.getDb();
+    const doc = await db.collection('userCredentials').doc(userId).get();
     if (!doc.exists) {
       throw new Error('User credentials not found');
     }
@@ -134,8 +141,10 @@ export class GoogleDriveService {
 
   async getNewFilesInFolder(userId: string, folderId: string): Promise<GoogleDriveFile[]> {
     try {
+      const db = this.getDb();
+      
       // Get last sync time from database
-      const syncDoc = await this.db.collection('folderSync').doc(`${userId}_${folderId}`).get();
+      const syncDoc = await db.collection('folderSync').doc(`${userId}_${folderId}`).get();
       const lastSyncTime = syncDoc.exists ? syncDoc.data()?.lastSyncTime : null;
 
       // Build query for files modified after last sync
@@ -151,7 +160,7 @@ export class GoogleDriveService {
       });
 
       // Update last sync time
-      await this.db.collection('folderSync').doc(`${userId}_${folderId}`).set({
+      await db.collection('folderSync').doc(`${userId}_${folderId}`).set({
         lastSyncTime: new Date(),
         updatedAt: new Date(),
       });

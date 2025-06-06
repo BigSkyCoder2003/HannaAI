@@ -1,5 +1,5 @@
 import * as cron from 'node-cron';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getAdminDb, isFirebaseInitialized } from './firebase-admin';
 import { googleDriveService } from './googleDrive';
 import { chatbaseService } from './chatbaseService';
 
@@ -13,18 +13,31 @@ interface SyncJob {
 }
 
 export class SyncService {
-  private db: FirebaseFirestore.Firestore;
   private cronJobs: Map<string, cron.ScheduledTask> = new Map();
   
   constructor() {
-    this.db = getFirestore();
-    this.initializeSyncJobs();
+    // Only initialize sync jobs if Firebase is available
+    if (isFirebaseInitialized()) {
+      this.initializeSyncJobs();
+    } else {
+      console.warn('SyncService: Firebase not initialized, skipping sync job initialization');
+    }
+  }
+
+  private getDb() {
+    const db = getAdminDb();
+    if (!db) {
+      throw new Error('Firebase Firestore not available');
+    }
+    return db;
   }
 
   async initializeSyncJobs() {
     try {
+      const db = this.getDb();
+      
       // Load existing sync jobs from database
-      const syncJobsSnapshot = await this.db.collection('syncJobs').where('isActive', '==', true).get();
+      const syncJobsSnapshot = await db.collection('syncJobs').where('isActive', '==', true).get();
       
       syncJobsSnapshot.forEach(doc => {
         const syncJob = doc.data() as SyncJob;
@@ -43,6 +56,7 @@ export class SyncService {
     googleDriveFolderId: string
   ): Promise<string> {
     try {
+      const db = this.getDb();
       const jobId = `${userId}_${chatbaseAgentId}`;
       const now = new Date();
       
@@ -56,7 +70,7 @@ export class SyncService {
       };
 
       // Save to database
-      await this.db.collection('syncJobs').doc(jobId).set(syncJob);
+      await db.collection('syncJobs').doc(jobId).set(syncJob);
 
       // Create cron job (runs every 15 minutes)
       this.createCronJob(jobId, syncJob);
@@ -161,7 +175,8 @@ export class SyncService {
       }
 
       // Update last sync time
-      await this.db.collection('syncJobs').doc(`${syncJob.userId}_${syncJob.chatbaseAgentId}`).update({
+      const db = this.getDb();
+      await db.collection('syncJobs').doc(`${syncJob.userId}_${syncJob.chatbaseAgentId}`).update({
         lastSyncTime: new Date(),
         nextSyncTime: new Date(Date.now() + 15 * 60 * 1000),
       });
@@ -181,7 +196,8 @@ export class SyncService {
     message?: string
   ) {
     try {
-      await this.db.collection('syncLogs').add({
+      const db = this.getDb();
+      await db.collection('syncLogs').add({
         userId,
         fileId,
         fileName,
@@ -205,7 +221,8 @@ export class SyncService {
       }
 
       // Update database
-      await this.db.collection('syncJobs').doc(jobId).update({
+      const db = this.getDb();
+      await db.collection('syncJobs').doc(jobId).update({
         isActive: false,
         stoppedAt: new Date(),
       });
@@ -219,7 +236,8 @@ export class SyncService {
 
   async getSyncLogs(userId: string, limit: number = 50) {
     try {
-      const logsSnapshot = await this.db
+      const db = this.getDb();
+      const logsSnapshot = await db
         .collection('syncLogs')
         .where('userId', '==', userId)
         .orderBy('timestamp', 'desc')
