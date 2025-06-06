@@ -52,6 +52,10 @@ export class GoogleDriveService {
     }
     
     const data = doc.data();
+    if (!data) {
+      throw new Error('User credentials data is empty');
+    }
+    
     this.auth.setCredentials({
       refresh_token: data.googleRefreshToken,
     });

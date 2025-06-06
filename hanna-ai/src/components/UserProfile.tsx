@@ -29,7 +29,7 @@ import {
   SmartToy, 
   Sync,
   CheckCircle,
-  Error,
+  Error as ErrorIcon,
   Warning,
   PlayArrow,
   Stop,
@@ -216,7 +216,7 @@ const UserProfile: React.FC = () => {
       case 'success':
         return <CheckCircle color="success" />;
       case 'error':
-        return <Error color="error" />;
+        return <ErrorIcon color="error" />;
       case 'warning':
         return <Warning color="warning" />;
       default:

@@ -143,7 +143,8 @@ export class SyncService {
           }
         } catch (fileError) {
           console.error(`Error processing file ${file.name}:`, fileError);
-          await this.logSyncEvent(syncJob.userId, file.id, file.name, 'error', fileError.toString());
+          const errorMessage = fileError instanceof Error ? fileError.message : String(fileError);
+          await this.logSyncEvent(syncJob.userId, file.id, file.name, 'error', errorMessage);
         }
       }
 
@@ -167,7 +168,8 @@ export class SyncService {
 
     } catch (error) {
       console.error(`Error performing sync for user ${syncJob.userId}:`, error);
-      await this.logSyncEvent(syncJob.userId, '', '', 'error', error.toString());
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      await this.logSyncEvent(syncJob.userId, '', '', 'error', errorMessage);
     }
   }
 
