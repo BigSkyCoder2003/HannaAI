@@ -46,9 +46,28 @@ export default function ChatPage() {
           <Typography variant="h6" gutterBottom>
             Authentication Required
           </Typography>
-          <Typography>
+          <Typography sx={{ mb: 2 }}>
             Please sign in to access the AI assistant.
           </Typography>
+          <Button 
+            variant="contained" 
+            onClick={() => router.push('/')}
+            sx={{
+              background: 'linear-gradient(45deg, #1a5d1a 30%, #2e7d2e 90%)',
+              borderRadius: 2,
+              px: 3,
+              py: 1,
+              fontWeight: 600,
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #0f3a0f 30%, #1a5d1a 90%)',
+                transform: 'translateY(-1px)',
+                boxShadow: '0 4px 12px rgba(26, 93, 26, 0.3)'
+              }
+            }}
+          >
+            Sign In
+          </Button>
         </Alert>
       </Container>
     );

@@ -275,18 +275,7 @@ const UserProfile: React.FC = () => {
                 disabled
                 fullWidth
               />
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                <Chip 
-                  label={`UID: ${userProfile.uid}`} 
-                  size="small" 
-                  variant="outlined" 
-                />
-                <Chip 
-                  label={`Created: ${userProfile.createdAt instanceof Date ? userProfile.createdAt.toLocaleDateString() : new Date(userProfile.createdAt).toLocaleDateString()}`} 
-                  size="small" 
-                  variant="outlined" 
-                />
-              </Box>
+
             </Stack>
           </CardContent>
         </Card>

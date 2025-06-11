@@ -137,12 +137,13 @@ const Navigation: React.FC = () => {
               <SmartToy sx={{ fontSize: { xs: 20, md: 24 }, color: 'white' }} />
             </Box>
             <Typography 
-              variant={{ xs: 'h6', md: 'h5' }}
+              variant="h5"
               component="div" 
               fontWeight="800"
               sx={{
                 letterSpacing: '-0.02em',
-                textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                fontSize: { xs: '1.25rem', md: '1.5rem' }
               }}
             >
               HannaAI
