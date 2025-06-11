@@ -59,30 +59,84 @@ const Navigation: React.FC = () => {
   }
 
   return (
-    <AppBar position="static" elevation={2} sx={{ bgcolor: 'primary.main' }}>
-      <Toolbar sx={{ minHeight: 64 }}>
+    <AppBar 
+      position="static" 
+      elevation={0} 
+      sx={{ 
+        background: 'linear-gradient(135deg, #1a5d1a 0%, #2e7d2e 50%, #3d8b3d 100%)',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        backdropFilter: 'blur(20px)',
+        borderRadius: 0
+      }}
+    >
+      <Toolbar sx={{ minHeight: 72, px: 3 }}>
         {/* Logo and Brand */}
-        <Box sx={{ display: 'flex', alignItems: 'center', mr: 4 }}>
-          <SmartToy sx={{ mr: 1.5, fontSize: 28 }} />
-          <Typography variant="h5" component="div" fontWeight="700">
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            mr: 6,
+            cursor: 'pointer',
+            transition: 'transform 0.2s ease',
+            '&:hover': {
+              transform: 'scale(1.02)'
+            }
+          }}
+          onClick={() => handleNavigation('/chat')}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 44,
+              height: 44,
+              borderRadius: 2,
+              background: 'rgba(255,255,255,0.15)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              mr: 2,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+            }}
+          >
+            <SmartToy sx={{ fontSize: 24, color: 'white' }} />
+          </Box>
+          <Typography 
+            variant="h5" 
+            component="div" 
+            fontWeight="800"
+            sx={{
+              letterSpacing: '-0.02em',
+              textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+            }}
+          >
             HannaAI
           </Typography>
         </Box>
 
         {/* Navigation Buttons */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexGrow: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 1 }}>
           <Button
             color="inherit"
             startIcon={<Chat />}
             onClick={() => handleNavigation('/chat')}
-            variant={pathname === '/chat' ? 'outlined' : 'text'}
             sx={{ 
-              borderRadius: 2,
-              px: 2,
-              py: 1,
+              borderRadius: 3,
+              px: 3,
+              py: 1.5,
               textTransform: 'none',
-              fontWeight: pathname === '/chat' ? 600 : 400,
-              bgcolor: pathname === '/chat' ? 'rgba(255,255,255,0.1)' : 'transparent'
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              background: pathname === '/chat' ? 'rgba(255,255,255,0.15)' : 'transparent',
+              border: pathname === '/chat' ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent',
+              backdropFilter: pathname === '/chat' ? 'blur(10px)' : 'none',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.3)',
+                transform: 'translateY(-1px)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              }
             }}
           >
             Chat
@@ -91,14 +145,23 @@ const Navigation: React.FC = () => {
             color="inherit"
             startIcon={<Settings />}
             onClick={() => handleNavigation('/profile')}
-            variant={pathname === '/profile' ? 'outlined' : 'text'}
             sx={{ 
-              borderRadius: 2,
-              px: 2,
-              py: 1,
+              borderRadius: 3,
+              px: 3,
+              py: 1.5,
               textTransform: 'none',
-              fontWeight: pathname === '/profile' ? 600 : 400,
-              bgcolor: pathname === '/profile' ? 'rgba(255,255,255,0.1)' : 'transparent'
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              background: pathname === '/profile' ? 'rgba(255,255,255,0.15)' : 'transparent',
+              border: pathname === '/profile' ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent',
+              backdropFilter: pathname === '/profile' ? 'blur(10px)' : 'none',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.3)',
+                transform: 'translateY(-1px)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              }
             }}
           >
             Profile
@@ -106,30 +169,20 @@ const Navigation: React.FC = () => {
         </Box>
 
         {/* Status Chips */}
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1, mr: 3 }}>
-          {userProfile?.chatbaseAgentId && (
-            <Chip
-              label="Agent Connected"
-              color="success"
-              size="small"
-              variant="filled"
-              sx={{ 
-                bgcolor: 'success.main', 
-                color: 'white',
-                fontWeight: 500
-              }}
-            />
-          )}
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, mr: 4 }}>
           {userProfile?.googleDriveFolderId && (
             <Chip
               label="Drive Linked"
-              color="info"
               size="small"
-              variant="filled"
               sx={{ 
-                bgcolor: 'info.main', 
-                color: 'white',
-                fontWeight: 500
+                bgcolor: 'rgba(173, 216, 230, 0.9)', 
+                color: '#1e3a8a',
+                fontWeight: 600,
+                fontSize: '0.75rem',
+                borderRadius: 2,
+                border: '1px solid rgba(255,255,255,0.2)',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
               }}
             />
           )}
@@ -140,17 +193,23 @@ const Navigation: React.FC = () => {
           color="inherit"
           startIcon={<Logout />}
           onClick={handleLogout}
-          variant="outlined"
           sx={{
-            borderColor: 'rgba(255,255,255,0.5)',
-            mr: 2,
-            px: 2,
-            py: 0.5,
+            borderRadius: 3,
+            px: 3,
+            py: 1.5,
+            mr: 3,
             textTransform: 'none',
-            fontWeight: 500,
+            fontWeight: 600,
+            fontSize: '0.9rem',
+            background: 'rgba(255,255,255,0.1)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.3s ease',
             '&:hover': {
-              borderColor: 'white',
-              bgcolor: 'rgba(255,255,255,0.1)'
+              background: 'rgba(255,255,255,0.15)',
+              border: '1px solid rgba(255,255,255,0.4)',
+              transform: 'translateY(-1px)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
             }
           }}
         >
@@ -168,9 +227,15 @@ const Navigation: React.FC = () => {
             color="inherit"
             sx={{
               p: 0.5,
-              border: '2px solid rgba(255,255,255,0.3)',
+              background: 'rgba(255,255,255,0.1)',
+              border: '2px solid rgba(255,255,255,0.2)',
+              backdropFilter: 'blur(10px)',
+              transition: 'all 0.3s ease',
               '&:hover': {
-                border: '2px solid rgba(255,255,255,0.7)'
+                background: 'rgba(255,255,255,0.15)',
+                border: '2px solid rgba(255,255,255,0.4)',
+                transform: 'scale(1.05)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.2)'
               }
             }}
           >
@@ -178,10 +243,23 @@ const Navigation: React.FC = () => {
               <Avatar 
                 src={user.photoURL} 
                 alt="Profile"
-                sx={{ width: 36, height: 36 }} 
+                sx={{ 
+                  width: 40, 
+                  height: 40,
+                  border: '2px solid rgba(255,255,255,0.3)'
+                }} 
               />
             ) : (
-              <Avatar sx={{ width: 36, height: 36, bgcolor: 'secondary.main' }}>
+              <Avatar 
+                sx={{ 
+                  width: 40, 
+                  height: 40, 
+                  bgcolor: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  fontWeight: 700,
+                  border: '2px solid rgba(255,255,255,0.3)'
+                }}
+              >
                 {(user.displayName?.charAt(0) || user.email?.charAt(0) || 'U').toUpperCase()}
               </Avatar>
             )}
@@ -201,35 +279,79 @@ const Navigation: React.FC = () => {
             open={Boolean(anchorEl)}
             onClose={handleClose}
             sx={{
-              mt: 1,
+              mt: 1.5,
               '& .MuiPaper-root': {
-                borderRadius: 2,
-                minWidth: 200,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.12)'
+                borderRadius: 3,
+                minWidth: 240,
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.3)',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.15)'
               }
             }}
           >
-            <Box sx={{ px: 2, py: 1.5, bgcolor: 'grey.50' }}>
-              <Typography variant="subtitle2" color="text.secondary">
+            <Box sx={{ px: 3, py: 2, background: 'linear-gradient(135deg, #f8fffe 0%, #f0f9f4 100%)' }}>
+              <Typography variant="subtitle2" color="text.secondary" sx={{ fontSize: '0.8rem', fontWeight: 500 }}>
                 Signed in as
               </Typography>
-              <Typography variant="body2" fontWeight="600" noWrap>
+              <Typography 
+                variant="body2" 
+                fontWeight="700" 
+                noWrap
+                sx={{ 
+                  color: '#1a5d1a',
+                  fontSize: '0.95rem'
+                }}
+              >
                 {user.displayName || user.email}
               </Typography>
             </Box>
-            <Divider />
-            <MenuItem onClick={() => handleNavigation('/profile')} sx={{ py: 1.5 }}>
-              <AccountCircle sx={{ mr: 2 }} />
-              Profile Settings
+            <Divider sx={{ borderColor: 'rgba(26, 93, 26, 0.1)' }} />
+            <MenuItem 
+              onClick={() => handleNavigation('/profile')} 
+              sx={{ 
+                py: 2, 
+                px: 3,
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  bgcolor: 'rgba(26, 93, 26, 0.05)',
+                  transform: 'translateX(4px)'
+                }
+              }}
+            >
+              <AccountCircle sx={{ mr: 2, color: '#1a5d1a' }} />
+              <Typography fontWeight={500}>Profile Settings</Typography>
             </MenuItem>
-            <MenuItem onClick={() => handleNavigation('/chat')} sx={{ py: 1.5 }}>
-              <Chat sx={{ mr: 2 }} />
-              Chat
+            <MenuItem 
+              onClick={() => handleNavigation('/chat')} 
+              sx={{ 
+                py: 2, 
+                px: 3,
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  bgcolor: 'rgba(26, 93, 26, 0.05)',
+                  transform: 'translateX(4px)'
+                }
+              }}
+            >
+              <Chat sx={{ mr: 2, color: '#1a5d1a' }} />
+              <Typography fontWeight={500}>Chat</Typography>
             </MenuItem>
-            <Divider />
-            <MenuItem onClick={handleLogout} sx={{ py: 1.5, color: 'error.main' }}>
-              <Logout sx={{ mr: 2 }} />
-              Sign Out
+            <Divider sx={{ borderColor: 'rgba(26, 93, 26, 0.1)' }} />
+            <MenuItem 
+              onClick={handleLogout} 
+              sx={{ 
+                py: 2, 
+                px: 3,
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  bgcolor: 'rgba(239, 68, 68, 0.05)',
+                  transform: 'translateX(4px)'
+                }
+              }}
+            >
+              <Logout sx={{ mr: 2, color: '#ef4444' }} />
+              <Typography fontWeight={500} color="#ef4444">Sign Out</Typography>
             </MenuItem>
           </Menu>
         </Box>
