@@ -282,7 +282,7 @@ const UserProfile: React.FC = () => {
                   variant="outlined" 
                 />
                 <Chip 
-                  label={`Created: ${userProfile.createdAt.toLocaleDateString()}`} 
+                  label={`Created: ${userProfile.createdAt instanceof Date ? userProfile.createdAt.toLocaleDateString() : new Date(userProfile.createdAt).toLocaleDateString()}`} 
                   size="small" 
                   variant="outlined" 
                 />

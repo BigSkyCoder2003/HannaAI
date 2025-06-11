@@ -129,14 +129,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     try {
       const userDocRef = doc(db, 'users', user.uid);
+      
+      // Filter out undefined values before updating Firestore
+      const cleanUpdates: any = {};
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value !== undefined) {
+          cleanUpdates[key] = value;
+        }
+      });
+      
+      console.log('Updating user profile with:', cleanUpdates);
+      
       const updatedProfile = {
         ...userProfile,
-        ...updates,
+        ...cleanUpdates,
         updatedAt: new Date(),
       };
       
-      await updateDoc(userDocRef, updatedProfile);
+      await updateDoc(userDocRef, cleanUpdates);
       setUserProfile(updatedProfile);
+      
+      console.log('Updated user profile:', updatedProfile);
     } catch (error) {
       console.error('Error updating user profile:', error);
       throw error;

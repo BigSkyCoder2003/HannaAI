@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       }, { status: 500 });
     }
 
-    const { message } = await req.json();
+    const { message, conversationHistory = [], conversationId } = await req.json();
     const apiKey = process.env.CHATBASE_API_KEY;
 
     if (!apiKey) {
@@ -47,25 +47,34 @@ export async function POST(req: NextRequest) {
     const userProfile = userDoc.data();
     const chatbotId = userProfile?.chatbaseAgentId;
 
+
+
     if (!chatbotId) {
       return NextResponse.json({ 
         error: "No Chatbase agent configured for this user. Please contact support to set up your agent." 
       }, { status: 400 });
     }
 
+    // Try just the current message first (like iframe might do)
+    const allMessages = [
+      { content: message, role: "user" }
+    ];
+    
+    // Minimal request - just like playground
+    const requestBody = {
+      messages: allMessages,
+      chatbotId: chatbotId
+    };
+    
+    console.log('🔍 CURRENT REQUEST:', JSON.stringify(requestBody, null, 2));
+    
     const chatbaseRes = await fetch("https://www.chatbase.co/api/v1/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        messages: [{ content: message, role: "user" }],
-        chatbotId: chatbotId,
-        stream: false,
-        temperature: 0.5,
-        model: "gpt-4o"
-      }),
+      body: JSON.stringify(requestBody),
     });
     
     if (!chatbaseRes.ok) {
